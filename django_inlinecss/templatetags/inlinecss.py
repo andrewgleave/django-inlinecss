@@ -31,7 +31,7 @@ class InlineCssNode(template.Node):
             expand_path = staticfiles_storage.path
             open_path = open
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
-                expanded_path = staticfiles_storage.url(path)
+                expand_path = staticfiles_storage.url
                 open_path = urllib2.urlopen
 
             expanded_path = expand_path(path)
