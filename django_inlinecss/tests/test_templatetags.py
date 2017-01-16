@@ -155,25 +155,3 @@ class InlineCssTests(TestCase):
         self.assertRegexpMatches(
             rendered,
             'This is the "bar" div.\s+<!-- comment three -->\s+')
-
-
-@override_settings(
-    TEMPLATE_DIRS=templates_override,
-    STATIC_ROOT=TESTS_STATIC_DIR)
-class DebugModeStaticfilesTests(TestCase):
-    @override_settings(DEBUG=True)
-    @patch('django.contrib.staticfiles.finders.find')
-    def test_debug_mode_uses_staticfiles_finder(self, find):
-        full_path = os.path.join(TESTS_STATIC_DIR, "foobar.css")
-        find.return_value = full_path
-        template = get_template('single_staticfiles_css.html')
-        template.render(Context({}))
-        find.assert_called_once_with("foobar.css")
-
-    @patch('django.contrib.staticfiles.storage.staticfiles_storage.path')
-    def test_non_debug_mode_uses_staticfiles_storage(self, path):
-        full_path = os.path.join(TESTS_STATIC_DIR, "foobar.css")
-        path.return_value = full_path
-        template = get_template('single_staticfiles_css.html')
-        template.render(Context({}))
-        path.assert_called_once_with("foobar.css")

@@ -1,9 +1,11 @@
+import urllib2
 from django import template
 
 from django.utils.encoding import smart_text
 from django.contrib.staticfiles import finders
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 from django_inlinecss import conf
 
@@ -22,13 +24,20 @@ class InlineCssNode(template.Node):
             path = expression.resolve(context, True)
             if path is not None:
                 path = smart_text(path)
-            if settings.DEBUG:
-                expanded_path = finders.find(path)
-            else:
-                expanded_path = staticfiles_storage.path(path)
 
-            with open(expanded_path) as css_file:
+            # We need to decide how to expand the path
+            # depending on the storage class and
+            # how to open the expanded path
+            expand_path = staticfiles_storage.path
+            open_path = open
+            if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
+                expanded_path = staticfiles_storage.url(path)
+                open_path = urllib2.urlopen
+
+            expanded_path = expand_path(path)
+            with open_path(expanded_path) as css_file:
                 css = ''.join((css, css_file.read()))
+
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
         return engine.render()
