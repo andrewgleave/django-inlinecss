@@ -35,8 +35,9 @@ class InlineCssNode(template.Node):
                 open_path = urllib2.urlopen
 
             expanded_path = expand_path(path)
-            with open_path(expanded_path) as css_file:
-                css = ''.join((css, css_file.read()))
+            css_file = open_path(expanded_path)
+            css = ''.join((css, css_file.read()))
+            css_file.close()
 
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
