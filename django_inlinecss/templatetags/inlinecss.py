@@ -35,9 +35,8 @@ class InlineCssNode(template.Node):
                 open_path = urlopen
 
             expanded_path = expand_path(path)
-            css_file = open_path(expanded_path)
-            css = ''.join((css, css_file.read()))
-            css_file.close()
+            with open_path(expanded_path) as css_file:
+                css = ''.join((css, css_file.read().decode('utf-8')))
 
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
