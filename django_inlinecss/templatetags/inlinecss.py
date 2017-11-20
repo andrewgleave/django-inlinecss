@@ -1,4 +1,4 @@
-import urllib2
+from urllib.request import urlopen
 from django import template
 
 from django.utils.encoding import smart_text
@@ -32,7 +32,7 @@ class InlineCssNode(template.Node):
             open_path = open
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
                 expand_path = staticfiles_storage.url
-                open_path = urllib2.urlopen
+                open_path = urlopen
 
             expanded_path = expand_path(path)
             css_file = open_path(expanded_path)
