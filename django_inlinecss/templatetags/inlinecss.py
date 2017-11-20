@@ -25,19 +25,13 @@ class InlineCssNode(template.Node):
             if path is not None:
                 path = smart_text(path)
 
-            # We need to decide how to expand the path
-            # depending on the storage class and
-            # how to open the expanded path
-            expand_path = staticfiles_storage.path
-            open_path = open
+            css = ''
             if not issubclass(staticfiles_storage.__class__, FileSystemStorage):
-                expand_path = staticfiles_storage.url
-                open_path = urlopen
-
-            expanded_path = expand_path(path)
-            with open_path(expanded_path) as css_file:
-                css = ''.join((css, css_file.read().decode('utf-8')))
-
+                with urlopen(staticfiles_storage.url(path)) as css_file:
+                    css = ''.join((css, css_file.read().decode('utf-8')))
+            else:
+                with open(staticfiles_storage.path(path)) as css_file:
+                    css = ''.join((css, css_file.read()))
 
         engine = conf.get_engine()(html=rendered_contents, css=css)
         return engine.render()
